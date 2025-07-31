@@ -15,7 +15,9 @@ class UserService
   end
 
   def update_user(id, user_params)
-    User.find(id).update(user_params)
+    user = User.find(id)
+    user.update!(user_params)
+    user
   end
 
   def destroy_user(id)
