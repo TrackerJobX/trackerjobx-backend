@@ -11,8 +11,9 @@ class UserService
   end
 
   def create_user(user_params)
-    User.create(user_params)
+    User.create!(user_params)
   end
+
 
   def update_user(id, user_params)
     user = User.find(id)
