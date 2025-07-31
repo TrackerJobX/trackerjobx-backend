@@ -10,10 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_31_064605) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_31_071119) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "job_applications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "company_name"
+    t.string "position_title"
+    t.string "application_link"
+    t.string "status", default: "draft"
+    t.datetime "application_date"
+    t.datetime "deadline_date"
+    t.text "notes"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_job_applications_on_deleted_at"
+    t.index ["user_id"], name: "index_job_applications_on_user_id"
+  end
 
   create_table "tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
@@ -37,4 +53,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_064605) do
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true, where: "(deleted_at IS NULL)"
   end
+
+  add_foreign_key "job_applications", "users"
 end
