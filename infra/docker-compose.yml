@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: trackerjobx-postgres
+    environment:
+      POSTGRES_USER: trackerjobx
+      POSTGRES_PASSWORD: trackerjobx
+      POSTGRES_DB: trackerjobx-development
+    ports:
+      - "5435:5432"
+    volumes:
+      - trackerjobx-postgres_data:/var/lib/postgresql/data
+
+volumes:
+  trackerjobx-postgres_data:
