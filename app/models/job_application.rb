@@ -11,4 +11,6 @@ class JobApplication < ApplicationRecord
     rejected: 'rejected',
     ghosted: 'ghosted'
   }, default: :draft
+
+  validates :company_name, presence: true
 end

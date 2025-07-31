@@ -7,21 +7,21 @@ class JobApplicationService
     JobApplication.where(user_id: user_id)
   end
 
-  def find(id)
+  def find_job_application(id)
     JobApplication.find(id)
   end
 
-  def create(params)
+  def create_job_application(params)
     JobApplication.create!(params)
   end
 
-  def update(id, params)
+  def update_job_application(id, params)
     job_app = JobApplication.find(id)
     job_app.update!(params)
     job_app
   end
 
-  def destroy(id)
+  def destroy_job_application(id)
     JobApplication.find(id).destroy
   end
 end
