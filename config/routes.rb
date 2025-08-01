@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       resources :tags
       resources :job_applications
       resources :attachments
+      resources :interviews
     end
   end
 end
