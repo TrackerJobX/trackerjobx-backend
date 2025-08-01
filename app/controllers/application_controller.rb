@@ -17,6 +17,6 @@ class ApplicationController < ActionController::Base
     render json: {
       status: "error",
       message: exception.message
-    }, status: :unprocessable_entity
+    }, status: :unprocessable_content
   end
 end

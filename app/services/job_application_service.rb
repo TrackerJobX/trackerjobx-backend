@@ -12,16 +12,21 @@ class JobApplicationService
   end
 
   def create_job_application(params)
-    JobApplication.create!(params)
+    tags_ids = params.delete(:tags_ids)
+    job_app = JobApplication.create!(params)
+    job_app.tags  = tags_ids if tags_ids.present?
+    job_app
   end
 
   def update_job_application(id, params)
+    tags_ids = params.delete(:tags_ids)
     job_app = JobApplication.find(id)
     job_app.update!(params)
+    job_app.tags  = tags_ids if tags_ids.present?
     job_app
   end
 
   def destroy_job_application(id)
-    JobApplication.find(id).destroy
+    JobApplication.find(id).destroy!
   end
 end

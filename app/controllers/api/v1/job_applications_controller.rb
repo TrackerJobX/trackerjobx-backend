@@ -24,7 +24,7 @@ class Api::V1::JobApplicationsController < Api::V1::BaseController
       data: JobApplicationBlueprint.render_as_hash(job_app)
     }, status: :created
     rescue ArgumentError => e
-      render json: { status: "error", message: e.message }, status: :unprocessable_entity
+      render json: { status: "error", message: e.message }, status: :unprocessable_content
   end
 
   def update
@@ -34,9 +34,9 @@ class Api::V1::JobApplicationsController < Api::V1::BaseController
       data: JobApplicationBlueprint.render_as_hash(job_app)
     }, status: :ok
     rescue ActiveRecord::RecordInvalid => e
-      render json: { status: "error", message: e.message }, status: :unprocessable_entity
+      render json: { status: "error", message: e.message }, status: :unprocessable_content
     rescue ArgumentError => e
-      render json: { status: "error", message: e.message }, status: :unprocessable_entity
+      render json: { status: "error", message: e.message }, status: :unprocessable_content
     rescue ActiveRecord::RecordNotFound
       render json: { status: "error", message: "Not Found" }, status: :not_found
   end
@@ -49,7 +49,12 @@ class Api::V1::JobApplicationsController < Api::V1::BaseController
   private
 
   def job_app_params
-    params.permit(:user_id, :company_name, :position_title, :application_link, :status, :application_date, :deadline_date, :notes)
+    params.permit(
+      :user_id, :company_name, :position_title,
+      :application_link, :status, :application_date,
+      :deadline_date, :notes,
+      tag_ids: []
+    )
   end
 
   def service

@@ -10,10 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_31_071119) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_01_013754) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "job_application_tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "job_application_id", null: false
+    t.uuid "tag_id", null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_job_application_tags_on_deleted_at"
+    t.index ["job_application_id", "tag_id"], name: "index_job_application_tags_on_job_application_id_and_tag_id", unique: true
+    t.index ["job_application_id"], name: "index_job_application_tags_on_job_application_id"
+    t.index ["tag_id"], name: "index_job_application_tags_on_tag_id"
+  end
 
   create_table "job_applications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
@@ -54,5 +66,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_071119) do
     t.index ["email"], name: "index_users_on_email", unique: true, where: "(deleted_at IS NULL)"
   end
 
+  add_foreign_key "job_application_tags", "job_applications"
+  add_foreign_key "job_application_tags", "tags"
   add_foreign_key "job_applications", "users"
 end

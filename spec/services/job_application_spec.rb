@@ -41,6 +41,17 @@ RSpec.describe JobApplicationService do
         }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
+
+    context 'with tag_ids' do
+      it 'assigns tags correctly' do
+        tags = create_list(:tag, 2)
+        job_params = attributes_for(:job_application).merge(user_id: user.id, tag_ids: tags.map(&:id))
+
+        job_app = service.create_job_application(job_params)
+
+        expect(job_app.tags.map(&:id)).to match_array(tags.map(&:id))
+      end
+    end
   end
 
   describe '#find_job_application' do
@@ -76,6 +87,15 @@ RSpec.describe JobApplicationService do
       expect {
         service.update_job_application(SecureRandom.uuid, { company_name: "Nope" })
       }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'updates tags correctly' do
+      job_app = create(:job_application, user: user)
+      new_tags = create_list(:tag, 3)
+
+      updated = service.update_job_application(job_app.id, { tag_ids: new_tags.map(&:id) })
+
+      expect(updated.tags.map(&:id)).to match_array(new_tags.map(&:id))
     end
   end
 
