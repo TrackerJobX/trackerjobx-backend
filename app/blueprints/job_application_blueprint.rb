@@ -10,4 +10,5 @@ class JobApplicationBlueprint < Blueprinter::Base
   end
 
   association :tags, blueprint: TagBlueprint
+  association :attachments, blueprint: AttachmentBlueprint
 end
