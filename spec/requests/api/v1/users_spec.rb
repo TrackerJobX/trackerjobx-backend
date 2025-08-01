@@ -40,7 +40,7 @@ RSpec.describe "Api::V1::Users", type: :request do
 
     it "returns error if params invalid" do
       post "/api/v1/users", params: valid_params.except(:email)
-      expect(response).to have_http_status(:unprocessable_entity).or have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
     end
   end
 

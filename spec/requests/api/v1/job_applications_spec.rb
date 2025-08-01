@@ -29,7 +29,7 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
       }
 
       post "/api/v1/job_applications", params: params.to_json, headers: headers
-      expect(response).to have_http_status(:unprocessable_entity).or have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
     end
 
     it 'returns error if user_id is invalid' do
@@ -41,7 +41,7 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
       }
 
       post "/api/v1/job_applications", params: params.to_json, headers: headers
-      expect(response).to have_http_status(:unprocessable_entity).or have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
     end
   end
 
@@ -72,16 +72,16 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
     let!(:job_app) { create(:job_application, user: user) }
 
     it 'updates a job application' do
-      put "/api/v1/job_applications/#{job_app.id}", 
+      put "/api/v1/job_applications/#{job_app.id}",
           params: { company_name: "Updated Co" }.to_json, headers: headers
       expect(response).to have_http_status(:ok)
       expect(json_body["data"]["company_name"]).to eq("Updated Co")
     end
 
     it 'returns error when update is invalid' do
-      put "/api/v1/job_applications/#{job_app.id}", 
+      put "/api/v1/job_applications/#{job_app.id}",
           params: { status: "invalid" }.to_json, headers: headers
-      expect(response).to have_http_status(:unprocessable_entity).or have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
     end
 
     it 'returns 404 when updating non-existent id' do
@@ -94,7 +94,7 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
       put "/api/v1/job_applications/#{job_app.id}",
           params: { status: "notreal" }.to_json, headers: headers
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(json_body["status"]).to eq("error")
     end
 
@@ -102,7 +102,7 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
       put "/api/v1/job_applications/#{job_app.id}",
           params: { company_name: "" }.to_json, headers: headers
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(json_body["status"]).to eq("error")
     end
 
@@ -119,7 +119,7 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
       put "/api/v1/job_applications/#{job_app.id}",
           params: { company_name: nil }.to_json, headers: headers
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(json_body["status"]).to eq("error")
       expect(json_body["message"]).to match(/can't be blank/)
     end

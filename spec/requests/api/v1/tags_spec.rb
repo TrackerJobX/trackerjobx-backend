@@ -21,7 +21,7 @@ RSpec.describe "Api::V1::Tags", type: :request do
 
     it 'returns error with invalid params' do
       post '/api/v1/tags', params: { name: '' }, headers: headers
-      expect(response).to have_http_status(:unprocessable_entity).or have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
     end
   end
 
@@ -54,7 +54,7 @@ RSpec.describe "Api::V1::Tags", type: :request do
     it 'returns error if update params invalid' do
       tag = create(:tag)
       put "/api/v1/tags/#{tag.id}", params: { name: '' }, headers: headers
-      expect(response).to have_http_status(:unprocessable_entity).or have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
     end
   end
 
