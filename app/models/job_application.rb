@@ -5,6 +5,7 @@ class JobApplication < ApplicationRecord
 
   has_many :job_application_tags, dependent: :destroy
   has_many :tags, through: :job_application_tags
+  has_many :attachments, dependent: :destroy
 
   enum :status, {
     draft: "draft",

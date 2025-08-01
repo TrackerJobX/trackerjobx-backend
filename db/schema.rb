@@ -10,10 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_01_013754) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_01_021845) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "job_application_id", null: false
+    t.string "attachment_type", null: false
+    t.string "attachment_url", null: false
+    t.string "version"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_attachments_on_deleted_at"
+    t.index ["job_application_id"], name: "index_attachments_on_job_application_id"
+  end
 
   create_table "job_application_tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "job_application_id", null: false
@@ -66,6 +78,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_013754) do
     t.index ["email"], name: "index_users_on_email", unique: true, where: "(deleted_at IS NULL)"
   end
 
+  add_foreign_key "attachments", "job_applications"
   add_foreign_key "job_application_tags", "job_applications"
   add_foreign_key "job_application_tags", "tags"
   add_foreign_key "job_applications", "users"
