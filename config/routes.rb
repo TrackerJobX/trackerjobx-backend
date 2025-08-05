@@ -19,6 +19,13 @@ Rails.application.routes.draw do
       resources :job_applications
       resources :attachments
       resources :interviews
+
+      # Auth Routes
+      scope :auth do
+        post "signup", to: "authentications#signup"
+        post "signin", to: "authentications#signin"
+        post "forgot_password", to: "authentications#forgot_password"
+      end
     end
   end
 end
