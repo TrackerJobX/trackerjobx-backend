@@ -21,9 +21,9 @@ RSpec.describe AuthenticationService do
         result = service.signup_user(user_params)
 
         expect(result[:status]).to eq(:created)
-        expect(result[:json][:status]).to eq('success')
-        expect(result[:json][:token]).to be_present
-        expect(result[:json][:user][:email]).to eq('test@example.com')
+        expect(result[:data][:status]).to eq('success')
+        expect(result[:data][:token]).to be_present
+        expect(result[:data][:user][:email]).to eq('test@example.com')
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe AuthenticationService do
         result = service.signup_user(user_params)
 
         expect(result[:status]).to eq(:unprocessable_content)
-        expect(result[:json][:errors]).to be_an(Array)
+        expect(result[:data][:errors]).to be_an(Array)
       end
     end
   end
@@ -49,8 +49,8 @@ RSpec.describe AuthenticationService do
         result = service.signin_user('user@example.com', 'secret123')
 
         expect(result[:status]).to eq(:ok)
-        expect(result[:json][:status]).to eq('success')
-        expect(result[:json][:token]).to be_present
+        expect(result[:data][:status]).to eq('success')
+        expect(result[:data][:token]).to be_present
       end
     end
 
@@ -59,7 +59,7 @@ RSpec.describe AuthenticationService do
         result = service.signin_user('user@example.com', 'wrongpass')
 
         expect(result[:status]).to eq(:unauthorized)
-        expect(result[:json][:error]).to eq('Invalid email or password')
+        expect(result[:data][:error]).to eq('Invalid email or password')
       end
     end
   end
@@ -72,8 +72,8 @@ RSpec.describe AuthenticationService do
         result = service.forgot_password_user('forgot@example.com')
 
         expect(result[:status]).to eq(:ok)
-        expect(result[:json][:status]).to eq('success')
-        expect(result[:json][:reset_link]).to include('https://yourfrontend.com/reset-password?token=')
+        expect(result[:data][:status]).to eq('success')
+        expect(result[:data][:reset_link]).to include('https://yourfrontend.com/reset-password?token=')
 
         user.reload
         expect(user.reset_password_token).to be_present
@@ -86,7 +86,7 @@ RSpec.describe AuthenticationService do
         result = service.forgot_password_user('unknown@example.com')
 
         expect(result[:status]).to eq(:not_found)
-        expect(result[:json][:error]).to eq('Email not found')
+        expect(result[:data][:error]).to eq('Email not found')
       end
     end
   end

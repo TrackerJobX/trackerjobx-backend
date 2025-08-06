@@ -10,7 +10,7 @@ class AuthenticationService
       token = JwtLib.encode_jwt(user.id)
       {
         status: :created,
-        json: {
+        data: {
           status: "success",
           token: token,
           user: user.slice(:id, :email, :username)
@@ -19,7 +19,7 @@ class AuthenticationService
     else
       {
         status: :unprocessable_content,
-        json: { errors: user.errors.full_messages }
+        data: { errors: user.errors.full_messages }
       }
     end
   end
@@ -31,7 +31,7 @@ class AuthenticationService
       token = JwtLib.encode_jwt(user.id)
       {
         status: :ok,
-        json: {
+        data: {
           status: "success",
           token: token,
           user: user.slice(:id, :email, :username)
@@ -40,7 +40,7 @@ class AuthenticationService
     else
       {
         status: :unauthorized,
-        json: { error: "Invalid email or password" }
+        data: { error: "Invalid email or password" }
       }
     end
   end
@@ -51,7 +51,7 @@ class AuthenticationService
     unless user
       return {
         status: :not_found,
-        json: { error: "Email not found" }
+        data: { error: "Email not found" }
       }
     end
 
@@ -65,7 +65,7 @@ class AuthenticationService
 
     {
       status: :ok,
-      json: {
+      data: {
         status: "success",
         message: "Password reset link sent to #{user.email}",
         reset_link: reset_link
