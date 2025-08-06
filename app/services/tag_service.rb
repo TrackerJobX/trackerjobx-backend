@@ -2,7 +2,7 @@
 
 class TagService
   def find_all_tags
-    Tag.all
+    Tag.all.order(updated_at: :desc)
   end
 
   def find_tag(id)

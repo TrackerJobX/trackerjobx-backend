@@ -10,6 +10,13 @@ RSpec.describe "Api::V1::Tags", type: :request do
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)['data'].size).to eq(2)
     end
+
+    it 'return with pagination tags' do
+      create_list(:tag, 10)
+      get '/api/v1/tags', params: { page: 1, per_page: 5 }, headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['data'].size).to eq(5)
+    end
   end
 
   describe 'POST /tags' do
