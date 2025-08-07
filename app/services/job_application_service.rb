@@ -18,9 +18,11 @@ class JobApplicationService
     job_app
   end
 
-  def update_job_application(id, params)
-    tags_ids = params.delete(:tags_ids)
+  def update_job_application(id, params, user_id)
     job_app = JobApplication.find(id)
+    raise ArgumentError, "Unauthorized" unless job_app.user_id == user_id
+
+    tags_ids = params.delete(:tags_ids)
     job_app.update!(params)
     job_app.tags  = tags_ids if tags_ids.present?
     job_app

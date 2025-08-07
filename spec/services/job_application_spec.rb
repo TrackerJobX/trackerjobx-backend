@@ -73,19 +73,19 @@ RSpec.describe JobApplicationService do
     let(:job_application) { create(:job_application, user: user) }
 
     it 'updates the application' do
-      updated = service.update_job_application(job_application.id, { company_name: "Updated Company" })
+      updated = service.update_job_application(job_application.id, { company_name: "Updated Company" }, user.id)
       expect(updated.company_name).to eq("Updated Company")
     end
 
     it 'raises error when invalid' do
       expect {
-        service.update_job_application(job_application.id, { company_name: nil })
+        service.update_job_application(job_application.id, { company_name: nil }, user.id)
       }.to raise_error(ActiveRecord::RecordInvalid)
     end
 
     it 'raises error if job application not found' do
       expect {
-        service.update_job_application(SecureRandom.uuid, { company_name: "Nope" })
+        service.update_job_application(SecureRandom.uuid, { company_name: "Nope" }, user.id)
       }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
@@ -93,7 +93,7 @@ RSpec.describe JobApplicationService do
       job_app = create(:job_application, user: user)
       new_tags = create_list(:tag, 3)
 
-      updated = service.update_job_application(job_app.id, { tag_ids: new_tags.map(&:id) })
+      updated = service.update_job_application(job_app.id, { tag_ids: new_tags.map(&:id) }, user.id)
 
       expect(updated.tags.map(&:id)).to match_array(new_tags.map(&:id))
     end

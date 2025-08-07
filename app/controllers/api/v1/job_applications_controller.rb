@@ -21,7 +21,7 @@ class Api::V1::JobApplicationsController < Api::V1::BaseController
   end
 
   def create
-    job_app = service.create_job_application(job_app_params)
+    job_app = service.create_job_application(job_app_params.merge(user_id: current_user.id))
     render json: {
       status: "success",
       data: JobApplicationBlueprint.render_as_hash(job_app)
@@ -31,7 +31,7 @@ class Api::V1::JobApplicationsController < Api::V1::BaseController
   end
 
   def update
-    job_app = service.update_job_application(params[:id], job_app_params)
+    job_app = service.update_job_application(params[:id], job_app_params, current_user.id)
     render json: {
       status: "success",
       data: JobApplicationBlueprint.render_as_hash(job_app)

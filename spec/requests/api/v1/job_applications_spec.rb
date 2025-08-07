@@ -65,9 +65,9 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
   end
 
   describe 'POST /api/v1/job_applications' do
+    let!(:invalid_headers) { auth_headers(other_user) }
     it 'creates a job application with minimal required fields' do
       params = {
-        user_id: user.id,
         company_name: "Binar Academy",
         position_title: "Fullstack Dev",
         application_link: "https://form.gle/binar",
@@ -81,7 +81,6 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
 
     it 'returns error for invalid status' do
       params = {
-        user_id: user.id,
         company_name: "Company X",
         position_title: "Dev",
         status: "notreal"
@@ -93,13 +92,12 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
 
     it 'returns error if user_id is invalid' do
       params = {
-        user_id: "non-existent-id",
         company_name: "Company Y",
         position_title: "Dev",
         status: "draft"
       }
 
-      post "/api/v1/job_applications", params: params.to_json, headers: headers
+      post "/api/v1/job_applications", params: params.to_json, headers: invalid_headers
       expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
     end
   end
