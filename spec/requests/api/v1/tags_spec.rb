@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe "Api::V1::Tags", type: :request do
-  let(:headers) { { 'ACCEPT' => 'application/json' } }
+  let!(:user) { create(:user) }
+  let!(:headers) { auth_headers(user).merge("CONTENT_TYPE" => "application/json") }
 
   describe 'GET /tags' do
     it 'returns list of tags' do
@@ -21,14 +22,21 @@ RSpec.describe "Api::V1::Tags", type: :request do
 
   describe 'POST /tags' do
     it 'creates a tag with valid params' do
-      post '/api/v1/tags', params: { name: 'Frontend' }, headers: headers
+      post '/api/v1/tags', params: { name: 'Frontend' }, headers: headers, as: :json
       expect(response).to have_http_status(:created)
       expect(JSON.parse(response.body)['data']['name']).to eq('Frontend')
     end
 
     it 'returns error with invalid params' do
-      post '/api/v1/tags', params: { name: '' }, headers: headers
+      post '/api/v1/tags', params: { name: '' }, headers: headers, as: :json
       expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
+    end
+
+    context 'when missing auth token' do
+      it 'returns unauthorized' do
+        post '/api/v1/tags', params: { name: 'Frontend' } # no headers
+        expect(response).to have_http_status(:unauthorized)
+      end
     end
   end
 
@@ -48,19 +56,19 @@ RSpec.describe "Api::V1::Tags", type: :request do
   describe 'PUT /tags/:id' do
     it 'updates a tag' do
       tag = create(:tag, name: 'OldName')
-      put "/api/v1/tags/#{tag.id}", params: { name: 'NewName' }, headers: headers
+      put "/api/v1/tags/#{tag.id}", params: { name: 'NewName' }, headers: headers, as: :json
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)['data']['name']).to eq('NewName')
     end
 
     it 'returns 404 if tag not found' do
-      put "/api/v1/tags/#{SecureRandom.uuid}", params: { name: 'NewName' }, headers: headers
+      put "/api/v1/tags/#{SecureRandom.uuid}", params: { name: 'NewName' }, headers: headers, as: :json
       expect(response).to have_http_status(:not_found)
     end
 
     it 'returns error if update params invalid' do
       tag = create(:tag)
-      put "/api/v1/tags/#{tag.id}", params: { name: '' }, headers: headers
+      put "/api/v1/tags/#{tag.id}", params: { name: '' }, headers: headers, as: :json
       expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
     end
   end

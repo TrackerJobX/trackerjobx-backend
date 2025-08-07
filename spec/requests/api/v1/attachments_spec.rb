@@ -1,8 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe "Api::V1::Attachments", type: :request do
+  let(:user) { create(:user) }
   let!(:job_application) { create(:job_application) }
-  let!(:headers) { { "CONTENT_TYPE" => "application/json" } }
+  let!(:headers) { auth_headers(user).merge("CONTENT_TYPE" => "application/json") }
 
   describe 'GET /api/v1/attachments' do
     let!(:job_application) { create(:job_application) }

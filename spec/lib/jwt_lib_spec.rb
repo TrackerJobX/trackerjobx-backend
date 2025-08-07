@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+include ActiveSupport::Testing::TimeHelpers
 
 RSpec.describe JwtLib do
   let(:user_id) { SecureRandom.uuid }
@@ -24,6 +25,15 @@ RSpec.describe JwtLib do
       expect {
         JwtLib.decode_jwt('invalid.token.value')
       }.to raise_error(JWT::DecodeError)
+    end
+
+    it 'raises error when token expires' do
+      token = JwtLib.encode_jwt(user_id)
+      travel_to 25.hours.from_now do
+        expect {
+          JwtLib.decode_jwt(token)
+        }.to raise_error(JWT::ExpiredSignature)
+      end
     end
   end
 end

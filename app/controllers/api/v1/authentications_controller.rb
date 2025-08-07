@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Api::V1::AuthenticationsController < Api::V1::BaseController
+  skip_before_action :authorize_request
+
   def signup
     result = service.signup_user(user_params)
     render json: result[:data], status: result[:status]

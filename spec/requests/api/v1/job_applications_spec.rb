@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe "Api::V1::JobApplications", type: :request do
   let!(:user) { create(:user) }
   before { create_list(:job_application, 3, user: user) }
-  let!(:headers) { { "CONTENT_TYPE" => "application/json" } }
+  let!(:headers) { auth_headers(user).merge("CONTENT_TYPE" => "application/json") }
 
   describe 'POST /api/v1/job_applications' do
     it 'creates a job application with minimal required fields' do
