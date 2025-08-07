@@ -2,7 +2,7 @@
 
 class Api::V1::JobApplicationsController < Api::V1::BaseController
   def index
-    job_apps = service.find_all(params[:user_id])
+    job_apps = service.find_all(params[:user_id]).page(params[:page]).per(params[:per_page] || 10)
     render json: {
       status: "success",
       data: JobApplicationBlueprint.render_as_hash(job_apps)
@@ -23,7 +23,7 @@ class Api::V1::JobApplicationsController < Api::V1::BaseController
       status: "success",
       data: JobApplicationBlueprint.render_as_hash(job_app)
     }, status: :created
-    rescue ArgumentError => e
+  rescue ArgumentError => e
       render json: { status: "error", message: e.message }, status: :unprocessable_content
   end
 
@@ -33,11 +33,11 @@ class Api::V1::JobApplicationsController < Api::V1::BaseController
       status: "success",
       data: JobApplicationBlueprint.render_as_hash(job_app)
     }, status: :ok
-    rescue ActiveRecord::RecordInvalid => e
-      render json: { status: "error", message: e.message }, status: :unprocessable_content
-    rescue ArgumentError => e
-      render json: { status: "error", message: e.message }, status: :unprocessable_content
-    rescue ActiveRecord::RecordNotFound
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { status: "error", message: e.message }, status: :unprocessable_content
+  rescue ArgumentError => e
+    render json: { status: "error", message: e.message }, status: :unprocessable_content
+  rescue ActiveRecord::RecordNotFound
       render json: { status: "error", message: "Not Found" }, status: :not_found
   end
 

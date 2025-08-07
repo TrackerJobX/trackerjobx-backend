@@ -4,7 +4,7 @@ class JobApplicationService
   def initialize; end
 
   def find_all(user_id)
-    JobApplication.where(user_id: user_id)
+    JobApplication.where(user_id: user_id).order(updated_at: :desc)
   end
 
   def find_job_application(id)

@@ -51,6 +51,12 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
       expect(response).to have_http_status(:ok)
       expect(json_body["data"].size).to eq(3)
     end
+
+    it 'returns job applications list with pagination' do
+      get "/api/v1/job_applications?user_id=#{user.id}&page=1&per_page=3", headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(json_body["data"].size).to eq(3)
+    end
   end
 
   describe 'GET /api/v1/job_applications/:id' do
