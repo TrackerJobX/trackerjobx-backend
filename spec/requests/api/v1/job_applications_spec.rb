@@ -3,7 +3,66 @@ require 'rails_helper'
 RSpec.describe "Api::V1::JobApplications", type: :request do
   let!(:user) { create(:user) }
   before { create_list(:job_application, 3, user: user) }
+  let!(:other_user) { create(:user) }
+  let!(:others_applications) { create_list(:job_application, 2, user: other_user) }
   let!(:headers) { auth_headers(user).merge("CONTENT_TYPE" => "application/json") }
+
+  describe 'GET /api/v1/job_applications' do
+    it 'returns current user’s job applications only' do
+      get "/api/v1/job_applications", headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(json_body["data"].size).to eq(3)
+    end
+
+    it 'paginates job applications' do
+      get "/api/v1/job_applications?page=1&per_page=2", headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(json_body["data"].size).to eq(2)
+    end
+
+    it 'returns empty array if pagination is out of range' do
+      get "/api/v1/job_applications?page=99&per_page=10", headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(json_body["data"]).to eq([])
+    end
+
+    it 'handles invalid pagination params gracefully' do
+      get "/api/v1/job_applications?page=-1&per_page=-5", headers: headers
+      expect(response).to have_http_status(:ok) # atau :bad_request sesuai implementasi kamu
+      expect(json_body["data"]).to be_a(Array)
+    end
+
+    it 'returns unauthorized without auth token' do
+      get "/api/v1/job_applications"
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    context 'when user has no job applications' do
+      let(:empty_user) { create(:user) }
+      let(:empty_headers) { auth_headers(empty_user) }
+
+      it 'returns an empty list' do
+        get "/api/v1/job_applications", headers: empty_headers
+        expect(response).to have_http_status(:ok)
+        expect(json_body["data"]).to eq([])
+      end
+    end
+  end
+
+  describe 'GET /api/v1/job_applications/:id' do
+    let!(:job_app) { create(:job_application, user: user) }
+
+    it 'returns a specific job application' do
+      get "/api/v1/job_applications/#{job_app.id}", headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(json_body["data"]["id"]).to eq(job_app.id)
+    end
+
+    it 'returns 404 if not found' do
+      get "/api/v1/job_applications/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 
   describe 'POST /api/v1/job_applications' do
     it 'creates a job application with minimal required fields' do
@@ -42,35 +101,6 @@ RSpec.describe "Api::V1::JobApplications", type: :request do
 
       post "/api/v1/job_applications", params: params.to_json, headers: headers
       expect(response).to have_http_status(:unprocessable_content).or have_http_status(:bad_request)
-    end
-  end
-
-  describe 'GET /api/v1/job_applications' do
-    it 'returns job applications list' do
-      get "/api/v1/job_applications?user_id=#{user.id}", headers: headers
-      expect(response).to have_http_status(:ok)
-      expect(json_body["data"].size).to eq(3)
-    end
-
-    it 'returns job applications list with pagination' do
-      get "/api/v1/job_applications?user_id=#{user.id}&page=1&per_page=3", headers: headers
-      expect(response).to have_http_status(:ok)
-      expect(json_body["data"].size).to eq(3)
-    end
-  end
-
-  describe 'GET /api/v1/job_applications/:id' do
-    let!(:job_app) { create(:job_application, user: user) }
-
-    it 'returns a specific job application' do
-      get "/api/v1/job_applications/#{job_app.id}", headers: headers
-      expect(response).to have_http_status(:ok)
-      expect(json_body["data"]["id"]).to eq(job_app.id)
-    end
-
-    it 'returns 404 if not found' do
-      get "/api/v1/job_applications/#{SecureRandom.uuid}", headers: headers
-      expect(response).to have_http_status(:not_found)
     end
   end
 

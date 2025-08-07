@@ -2,7 +2,10 @@
 
 class Api::V1::JobApplicationsController < Api::V1::BaseController
   def index
-    job_apps = service.find_all(params[:user_id]).page(params[:page]).per(params[:per_page] || 10)
+    page = (params[:page].to_i > 0) ? params[:page] : 1
+    per_page = (params[:per_page].to_i > 0) ? params[:per_page] : 10
+    job_apps = service.find_all(current_user.id).page(page).per(per_page)
+
     render json: {
       status: "success",
       data: JobApplicationBlueprint.render_as_hash(job_apps)
