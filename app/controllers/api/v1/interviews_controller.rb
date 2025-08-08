@@ -2,10 +2,15 @@
 
 class Api::V1::InterviewsController < Api::V1::BaseController
   def index
-    interviews = service.find_all_by_job_application(params[:job_application_id])
+    if params[:job_application_id].present?
+      @interviews = service.find_all_interviews_by_job_application(params[:job_application_id], current_user)
+    else
+      @interviews = service.find_all_interviews_by_user(current_user)
+    end
+
     render json: {
       status: "success",
-      data: InterviewBlueprint.render_as_hash(interviews)
+      data: InterviewBlueprint.render_as_hash(@interviews)
     }, status: :ok
   end
 
@@ -23,7 +28,7 @@ class Api::V1::InterviewsController < Api::V1::BaseController
       status: "success",
       data: InterviewBlueprint.render_as_hash(interview)
     }, status: :created
-    rescue ArgumentError => e
+  rescue ArgumentError => e
       render json: { status: "error", message: e.message }, status: :unprocessable_content
   end
 

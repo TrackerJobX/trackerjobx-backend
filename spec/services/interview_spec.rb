@@ -4,19 +4,48 @@ RSpec.describe InterviewService do
   let(:service) { described_class.new }
   let(:job_application) { create(:job_application) }
 
-  describe '#create_interview' do
-    it 'creates interview with valid params' do
-      params = attributes_for(:interview).merge(job_application_id: job_application.id)
-      result = service.create_interview(params)
+  describe '#find_all_interviews_by_user' do
+    let(:user1) { create(:user) }
+    let(:user2) { create(:user) }
 
-      expect(result).to be_persisted
-      expect(result.job_application_id).to eq(job_application.id)
+    let!(:job_application1) { create(:job_application, user: user1) }
+    let!(:job_application2) { create(:job_application, user: user2) }
+
+    before do
+      create_list(:interview, 2, job_application: job_application1)
+      create_list(:interview, 3, job_application: job_application2)
     end
 
-    it 'raises error for missing fields' do
+    it 'returns interviews for job applications belonging to the user' do
+      result = service.find_all_interviews_by_user(user1)
+      expect(result.size).to eq(2)
+      expect(result.pluck(:job_application_id).uniq).to eq([ job_application1.id ])
+    end
+  end
+
+  describe '#find_all_interviews_by_job_application' do
+    let(:user) { create(:user) }
+    let(:job_application) { create(:job_application, user: user) }
+
+    before { create_list(:interview, 3, job_application: job_application) }
+
+    it 'returns all interviews for a job application owned by the user' do
+      result = service.find_all_interviews_by_job_application(job_application.id, user)
+      expect(result.size).to eq(3)
+      expect(result.pluck(:job_application_id).uniq).to eq([ job_application.id ])
+    end
+
+    it 'raises error if job application does not belong to user' do
+      other_user = create(:user)
       expect {
-        service.create_interview({})
-      }.to raise_error(ActiveRecord::RecordInvalid)
+        service.find_all_interviews_by_job_application(job_application.id, other_user)
+      }.to raise_error(ActiveRecord::RecordNotFound, "Job Application not found")
+    end
+
+    it 'raises error if job application is not found' do
+      expect {
+        service.find_all_interviews_by_job_application(SecureRandom.uuid, user)
+      }.to raise_error(ActiveRecord::RecordNotFound, "Job Application not found")
     end
   end
 
@@ -35,13 +64,19 @@ RSpec.describe InterviewService do
     end
   end
 
-  describe '#find_all_by_job_application' do
-    before { create_list(:interview, 3, job_application: job_application) }
+  describe '#create_interview' do
+    it 'creates interview with valid params' do
+      params = attributes_for(:interview).merge(job_application_id: job_application.id)
+      result = service.create_interview(params)
 
-    it 'returns all interviews for a job application' do
-      result = service.find_all_by_job_application(job_application.id)
-      expect(result.size).to eq(3)
-      expect(result.pluck(:job_application_id).uniq).to eq([ job_application.id ])
+      expect(result).to be_persisted
+      expect(result.job_application_id).to eq(job_application.id)
+    end
+
+    it 'raises error for missing fields' do
+      expect {
+        service.create_interview({})
+      }.to raise_error(ActiveRecord::RecordInvalid)
     end
   end
 

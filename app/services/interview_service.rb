@@ -3,8 +3,16 @@
 class InterviewService
   def initialize; end
 
-  def find_all_by_job_application(job_application_id)
-    Interview.where(job_application_id: job_application_id)
+  def find_all_interviews_by_user(user)
+    Interview.joins(:job_application).where(job_applications: { user_id: user.id })
+  end
+
+  def find_all_interviews_by_job_application(job_application_id, user)
+    job_app = JobApplication.find_by(id: job_application_id, user: user)
+  raise ActiveRecord::RecordNotFound, "Job Application not found" unless job_app
+
+    interviews = Interview.joins(:job_application).where(job_applications: { id: job_app.id })
+    interviews
   end
 
   def find_interview(id)

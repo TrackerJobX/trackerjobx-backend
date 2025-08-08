@@ -6,9 +6,13 @@ RSpec.describe "Api::V1::Interviews", type: :request do
   let!(:headers) { auth_headers(user).merge("CONTENT_TYPE" => "application/json") }
 
   describe 'GET /api/v1/interviews' do
+    let(:user) { create(:user) }
+    let(:headers) { auth_headers(user) }
+    let!(:job_application) { create(:job_application, user: user) }
+
     before { create_list(:interview, 3, job_application: job_application) }
 
-    it 'returns all interviews for a job application' do
+    it 'returns all interviews for a job application belonging to current user' do
       get "/api/v1/interviews", params: { job_application_id: job_application.id }, headers: headers
 
       expect(response).to have_http_status(:ok)
@@ -16,13 +20,38 @@ RSpec.describe "Api::V1::Interviews", type: :request do
       expect(json_body["data"].map { |i| i["job_application_id"] }.uniq).to eq([ job_application.id ])
     end
 
-    it 'returns empty if no interviews' do
-      get "/api/v1/interviews", params: { job_application_id: SecureRandom.uuid }, headers: headers
+    it 'returns all interviews for current user if job_application_id not present' do
+      get "/api/v1/interviews", headers: headers
+
       expect(response).to have_http_status(:ok)
-      expect(json_body["data"]).to be_empty
+      expect(json_body["data"].size).to eq(3)
+      expect(json_body["data"].map { |i| i["job_application_id"] }.uniq).to eq([ job_application.id ])
+    end
+
+    it 'returns 404 if job application not found or not owned by current user' do
+      other_job_application = create(:job_application) # owned by different user
+
+      get "/api/v1/interviews", params: { job_application_id: other_job_application.id }, headers: headers
+
+      expect(response).to have_http_status(:not_found)
+      expect(json_body["message"]).to eq("Data not found")
     end
   end
 
+  describe 'GET /api/v1/interviews/:id' do
+    let!(:interview) { create(:interview, job_application: job_application) }
+
+    it 'returns interview detail' do
+      get "/api/v1/interviews/#{interview.id}", headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(json_body["data"]["id"]).to eq(interview.id)
+    end
+
+    it 'returns 404 if interview not found' do
+      get "/api/v1/interviews/#{SecureRandom.uuid}", headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 
   describe 'POST /api/v1/interviews' do
     it 'creates an interview with valid input' do
@@ -69,21 +98,6 @@ RSpec.describe "Api::V1::Interviews", type: :request do
 
       post "/api/v1/interviews", params: params.to_json, headers: headers
       expect(response).to have_http_status(:unprocessable_content)
-    end
-  end
-
-  describe 'GET /api/v1/interviews/:id' do
-    let!(:interview) { create(:interview, job_application: job_application) }
-
-    it 'returns interview detail' do
-      get "/api/v1/interviews/#{interview.id}", headers: headers
-      expect(response).to have_http_status(:ok)
-      expect(json_body["data"]["id"]).to eq(interview.id)
-    end
-
-    it 'returns 404 if interview not found' do
-      get "/api/v1/interviews/#{SecureRandom.uuid}", headers: headers
-      expect(response).to have_http_status(:not_found)
     end
   end
 
