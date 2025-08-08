@@ -14,6 +14,12 @@ RSpec.describe "Api::V1::Attachments", type: :request do
       expect(response).to have_http_status(:ok)
       expect(json_body["data"].size).to eq(2)
     end
+
+    it 'returns list of attachment when job application id is missing' do
+      get "/api/v1/attachments", headers: headers
+      expect(response).to have_http_status(:ok)
+      expect(json_body["data"].size).to eq(2)
+    end
   end
 
   describe 'GET /api/v1/attachments/:id' do

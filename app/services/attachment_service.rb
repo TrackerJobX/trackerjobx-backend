@@ -3,6 +3,10 @@
 class AttachmentService
   def initialize; end
 
+  def find_all_attachments
+    Attachment.all
+  end
+
   def find_all_by_job_application(job_application_id)
     Attachment.where(job_application_id: job_application_id)
   end

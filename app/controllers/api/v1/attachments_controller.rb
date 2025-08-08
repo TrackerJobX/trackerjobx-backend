@@ -2,10 +2,14 @@
 
 class Api::V1::AttachmentsController < Api::V1::BaseController
   def index
-    attachments = service.find_all_by_job_application(params[:job_application_id])
+    if params[:job_application_id].present?
+      @attachments = service.find_all_by_job_application(params[:job_application_id])
+    else
+      @attachments = service.find_all_attachments
+    end
     render json: {
       status: "success",
-      data: AttachmentBlueprint.render_as_hash(attachments)
+      data: AttachmentBlueprint.render_as_hash(@attachments)
     }, status: :ok
   end
 

@@ -6,6 +6,14 @@ RSpec.describe AttachmentService do
   let(:job_application) { create(:job_application, user: user) }
   let!(:attachments) { create_list(:attachment, 3, job_application: job_application) }
 
+  describe '#find_all' do
+    it 'returns all attachments' do
+      result = service.find_all_attachments()
+      expect(result.size).to eq(3)
+      expect(result.pluck(:id)).to match_array(attachments.map(&:id))
+    end
+  end
+
   describe '#find_all_by_job_application' do
     it 'returns all attachments for a job application' do
       result = service.find_all_by_job_application(job_application.id)
