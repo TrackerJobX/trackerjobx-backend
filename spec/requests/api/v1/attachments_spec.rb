@@ -6,19 +6,34 @@ RSpec.describe "Api::V1::Attachments", type: :request do
   let!(:headers) { auth_headers(user).merge("CONTENT_TYPE" => "application/json") }
 
   describe 'GET /api/v1/attachments' do
-    let!(:job_application) { create(:job_application) }
-    before { create_list(:attachment, 2, job_application: job_application) }
+    let!(:user) { create(:user) }
+    let!(:job_application) { create(:job_application, user: user) }
+    let!(:attachments) { create_list(:attachment, 2, job_application: job_application) }
+    let!(:other_user) { create(:user) }
+    let!(:other_job_app) { create(:job_application, user: other_user) }
+    let!(:other_attachment) { create(:attachment, job_application: other_job_app) }
 
-    it 'returns list of attachments by job application' do
+    before do
+      # headers should be authenticated as `user`
+      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+    end
+
+    it 'returns attachments for job application belonging to current user' do
       get "/api/v1/attachments", params: { job_application_id: job_application.id }, headers: headers
       expect(response).to have_http_status(:ok)
       expect(json_body["data"].size).to eq(2)
     end
 
-    it 'returns list of attachment when job application id is missing' do
+    it 'returns empty array if job application does not belong to current user' do
+      get "/api/v1/attachments", params: { job_application_id: other_job_app.id }, headers: headers
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'returns all attachments for current user when job_application_id is missing' do
       get "/api/v1/attachments", headers: headers
       expect(response).to have_http_status(:ok)
       expect(json_body["data"].size).to eq(2)
+      expect(json_body["data"].map { |a| a["id"] }).to match_array(attachments.map(&:id))
     end
   end
 

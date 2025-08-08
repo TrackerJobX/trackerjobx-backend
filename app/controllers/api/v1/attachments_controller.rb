@@ -3,9 +3,9 @@
 class Api::V1::AttachmentsController < Api::V1::BaseController
   def index
     if params[:job_application_id].present?
-      @attachments = service.find_all_by_job_application(params[:job_application_id])
+      @attachments = service.find_all_attachments_by_job_application(params[:job_application_id], current_user)
     else
-      @attachments = service.find_all_attachments
+      @attachments = service.find_all_attachments_by_user(current_user)
     end
     render json: {
       status: "success",

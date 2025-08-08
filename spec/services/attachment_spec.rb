@@ -6,24 +6,40 @@ RSpec.describe AttachmentService do
   let(:job_application) { create(:job_application, user: user) }
   let!(:attachments) { create_list(:attachment, 3, job_application: job_application) }
 
-  describe '#find_all' do
-    it 'returns all attachments' do
-      result = service.find_all_attachments()
+  describe '#find_all_by_user' do
+    it 'returns all attachments across user job applications' do
+      result = service.find_all_attachments_by_user(user)
       expect(result.size).to eq(3)
       expect(result.pluck(:id)).to match_array(attachments.map(&:id))
+    end
+
+    it 'does not return attachments from other users' do
+      other_user = create(:user)
+      other_job = create(:job_application, user: other_user)
+      create(:attachment, job_application: other_job)
+
+      result = service.find_all_attachments_by_user(user)
+      expect(result.size).to eq(3) # not 4
     end
   end
 
   describe '#find_all_by_job_application' do
-    it 'returns all attachments for a job application' do
-      result = service.find_all_by_job_application(job_application.id)
+    it 'returns all attachments for a job application owned by user' do
+      result = service.find_all_attachments_by_job_application(job_application.id, user)
       expect(result.size).to eq(3)
       expect(result.pluck(:id)).to match_array(attachments.map(&:id))
     end
 
-    it 'returns empty array if no attachments exist' do
+    it 'raises error if job application not owned by user' do
+      other_user = create(:user)
+      expect {
+        service.find_all_attachments_by_job_application(job_application.id, other_user)
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'returns empty array if no attachments exist for job application' do
       new_job = create(:job_application, user: user)
-      result = service.find_all_by_job_application(new_job.id)
+      result = service.find_all_attachments_by_job_application(new_job.id, user)
       expect(result).to be_empty
     end
   end
