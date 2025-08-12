@@ -78,4 +78,35 @@ RSpec.describe 'Api::AuthController', type: :request do
       expect(json['error']).to eq('Email not found')
     end
   end
+
+  describe 'GET /api/v1/auth/profile' do
+    let!(:user) { User.create!(email: 'profile@example.com', first_name: 'John', last_name: 'Doe', password: '12345678', password_confirmation: '12345678') }
+
+    it 'returns user details' do
+      get '/api/v1/auth/profile', headers: auth_headers(user)
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['status']).to eq('success')
+      expect(json['data']['email']).to eq('profile@example.com')
+      expect(json['data']['first_name']).to eq('John')
+      expect(json['data']['last_name']).to eq('Doe')
+    end
+
+    it 'returns user details with member' do
+      get '/api/v1/auth/profile', headers: auth_headers(user)
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['status']).to eq('success')
+      expect(json['data']['email']).to eq('profile@example.com')
+      expect(json['data']['first_name']).to eq('John')
+      expect(json['data']['last_name']).to eq('Doe')
+      expect(json['data']['role']).to eq('member')
+    end
+
+    it 'returns error if not authenticated' do
+      get '/api/v1/auth/profile'
+    end
+  end
 end

@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         post "signup", to: "authentications#signup"
         post "signin", to: "authentications#signin"
         post "forgot_password", to: "authentications#forgot_password"
+        get "profile", to: "authentications#profile"
       end
     end
   end
