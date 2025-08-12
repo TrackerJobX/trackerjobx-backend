@@ -39,5 +39,25 @@ RSpec.describe User, type: :model do
         expect(user.username).to match(/^janesmith\d+$/)
       end
     end
+
+    context 'when generate user with roles' do
+      it 'generate username' do
+        user = User.new(first_name: 'Jane', last_name: 'Smith', email: 'jane2@example.com', role: 'admin')
+        user.send(:generate_username)
+        expect(user.username).to match("janesmith")
+      end
+
+      it 'generate username' do
+        user = User.new(first_name: 'Jane', last_name: 'Smith', email: 'jane2@example.com', role: 'member')
+        user.send(:generate_username)
+        expect(user.username).to match("janesmith")
+      end
+
+      it 'raises error for invalid role' do
+        expect {
+          User.new(first_name: 'Jane', last_name: 'Smith', email: 'jane2@example.com', role: 'guest')
+        }.to raise_error(ArgumentError, "'guest' is not a valid role")
+      end
+    end
   end
 end

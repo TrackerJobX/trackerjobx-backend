@@ -43,7 +43,7 @@ class Api::V1::UsersController < Api::V1::BaseController
   private
 
   def user_params
-    params.permit(:username, :email, :password, :first_name, :last_name, :phone)
+    params.permit(:username, :email, :password, :first_name, :last_name, :phone, :role)
   end
 
   def service
