@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_12_034943) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_13_030236) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -90,8 +90,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_034943) do
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.string "role", default: "member", null: false
+    t.boolean "email_verified", default: false
+    t.string "email_verification_token"
+    t.datetime "email_verification_sent_at"
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true, where: "(deleted_at IS NULL)"
+    t.index ["email_verification_token"], name: "index_users_on_email_verification_token", unique: true
   end
 
   add_foreign_key "attachments", "job_applications"

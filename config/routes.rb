@@ -26,6 +26,7 @@ Rails.application.routes.draw do
         post "signin", to: "authentications#signin"
         post "forgot_password", to: "authentications#forgot_password"
         get "profile", to: "authentications#profile"
+        get "/verify_email", to: "email_verifications#verify", as: :verify_email
       end
     end
   end
