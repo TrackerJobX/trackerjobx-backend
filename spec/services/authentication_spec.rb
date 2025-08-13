@@ -42,7 +42,13 @@ RSpec.describe AuthenticationService do
   end
 
   describe '#signin_user' do
-    let!(:user) { User.create!(email: 'user@example.com', password: 'secret123', password_confirmation: 'secret123') }
+    let!(:user) { User.create!(
+      email: 'user@example.com',
+      password: 'secret123',
+      password_confirmation: 'secret123',
+      email_verification_sent_at: Time.now,
+      email_verified: true
+    ) }
 
     context 'with correct credentials' do
       it 'returns success and token' do
@@ -60,6 +66,22 @@ RSpec.describe AuthenticationService do
 
         expect(result[:status]).to eq(:unauthorized)
         expect(result[:data][:error]).to eq('Invalid email or password')
+      end
+    end
+
+    context 'when user not verified email' do
+      let!(:user) { User.create!(
+        email: 'user@example.com',
+        password: 'secret123',
+        password_confirmation: 'secret123',
+        email_verified: false
+      ) }
+
+      it 'returns unauthorized error' do
+        result = service.signin_user('user@example.com', 'secret123')
+
+        expect(result[:status]).to eq(:unauthorized)
+        expect(result[:data][:error]).to eq('Please verify your email')
       end
     end
   end

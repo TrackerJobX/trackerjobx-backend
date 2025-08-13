@@ -38,7 +38,13 @@ RSpec.describe 'Api::AuthController', type: :request do
   end
 
   describe 'POST /api/v1/auth/signin' do
-    let!(:user) { User.create!(email: 'signin@example.com', password: 'password', password_confirmation: 'password') }
+    let!(:user) { User.create!(
+      email: 'signin@example.com',
+      password: 'password',
+      password_confirmation: 'password',
+      email_verification_sent_at: Time.now,
+      email_verified: true
+    ) }
 
     it 'signs in with correct credentials' do
       post '/api/v1/auth/signin', params: { email: 'signin@example.com', password: 'password' }

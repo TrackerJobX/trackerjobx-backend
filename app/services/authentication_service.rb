@@ -27,6 +27,13 @@ class AuthenticationService
   def signin_user(email, password)
     user = User.find_by(email: email)
 
+    if user && !user.email_verified
+      return {
+        status: :unauthorized,
+        data: { error: "Please verify your email" }
+      }
+    end
+
     if user&.authenticate(password)
       token = JwtLib.encode_jwt(user.id)
       {
