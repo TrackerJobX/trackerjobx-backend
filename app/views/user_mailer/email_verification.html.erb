@@ -1,16 +1,33 @@
-<h1>Hi <%= @user.first_name %>,</h1>
+<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+  <h1 style="color: #2c3e50;">Hi <%= @user.first_name %>,</h1>
 
-<p>
-  Thank you for registering at TrackerJobX!  
-  Please click the link below to verify your email address:
-</p>
+  <p>
+    Welcome to <strong>TrackerJobX</strong> 🎉  
+    We're excited to have you on board!  
+  </p>
 
-<p>
-  <%= link_to 'Verify Email', @verification_url %>
-</p>
+  <p>
+    To complete your registration, please verify your email address by clicking the button below:
+  </p>
 
-<p>This link will expire in 48 hours.</p>
+  <p style="text-align: left; margin: 30px 0;">
+    <a href="<%= @verification_url %>" 
+       style="background-color: #4CAF50; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+      Verify Email
+    </a>
+  </p>
 
-<p>Best regards,<br>
-  TrackerJobX Team
-</p>
+  <p style="font-size: 14px; color: #777;">
+    This link will expire in <strong>48 hours</strong>.  
+    If the button above doesn't work, copy and paste this URL into your browser:
+  </p>
+
+  <p style="word-break: break-all; font-size: 14px; color: #555;">
+    <%= @verification_url %>
+  </p>
+
+  <p>
+    Best regards,<br>
+    <strong>TrackerJobX Team</strong>
+  </p>
+</div>
