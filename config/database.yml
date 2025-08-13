@@ -15,12 +15,11 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  username: <%= ENV.fetch("DATABASE_USER") { "trackerjobx" } %>
-  password: <%= ENV.fetch("DATABASE_PASSWORD") { "trackerjobx" } %>
-  host: <%= ENV.fetch("DATABASE_HOST") { "localhost" } %>
-  port: <%= ENV.fetch("DATABASE_PORT") { "5435" } %>
+  username: <%= ENV.fetch("DATABASE_USER", "trackerjobx") %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD", "trackerjobx") %>
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+  port: <%= ENV.fetch("DATABASE_PORT", "5435") %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-
 
 development:
   <<: *default

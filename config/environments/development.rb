@@ -37,8 +37,18 @@ Rails.application.configure do
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false
 
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    user_name: ENV.fetch("MAILTRAP_USERNAME", nil),
+    password: ENV.fetch("MAILTRAP_PASSWORD", nil),
+    address: "sandbox.smtp.mailtrap.io",
+    domain: "sandbox.smtp.mailtrap.io",
+    port: 2525,
+    authentication: :plain
+  }
+
   # Set localhost to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  config.action_mailer.default_url_options = { host: "localhost", port: 8080 }
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
