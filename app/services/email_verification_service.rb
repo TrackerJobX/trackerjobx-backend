@@ -17,6 +17,6 @@ class EmailVerificationService
   private
 
   def token_expired?(user)
-    user.email_verification_sent_at <= 2.days.ago
+    user.email_verification_sent_at <= Time.current - 2.days
   end
 end
