@@ -53,6 +53,7 @@ class Api::V1::PlansController < Api::V1::BaseController
 
   def plan_params
     params.permit(:name,
+                  :description,
                   :price,
                   :job_applications_limit,
                   :interviews_limit,
