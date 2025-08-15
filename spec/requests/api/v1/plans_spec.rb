@@ -34,8 +34,33 @@ RSpec.describe "Api::V1::Plans", type: :request do
   end
 
   describe "POST /api/v1/plans" do
-    let(:valid_params) { { name: "Premium", price: Faker::Number.number(digits: 3) } }
-    let(:invalid_params) { { name: nil, price: Faker::Number.number(digits: 3) } }
+    let(:valid_params) do
+      {
+        name: "Premium",
+        price: Faker::Number.number(digits: 3),
+        job_applications_limit: 10,
+        interviews_limit: 5,
+        attachments_limit: 3
+      }
+    end
+
+    let(:invalid_params) do
+      {
+        name: nil,
+        price: Faker::Number.number(digits: 3),
+        job_applications_limit: 10
+      }
+    end
+
+    let(:negative_limit_params) do
+      {
+        name: "Negative Plan",
+        price: Faker::Number.number(digits: 3),
+        job_applications_limit: -1, # invalid
+        interviews_limit: 5,
+        attachments_limit: 3
+      }
+    end
 
     it "creates a new plan" do
       expect {
@@ -50,6 +75,27 @@ RSpec.describe "Api::V1::Plans", type: :request do
     it "returns error if params invalid" do
       post "/api/v1/plans", params: invalid_params.to_json, headers: headers
       expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it "returns error if limits are negative" do
+      post "/api/v1/plans", params: negative_limit_params.to_json, headers: headers
+      expect(response).to have_http_status(:unprocessable_content)
+      json = JSON.parse(response.body)
+      expect(json["error"]).to include("Job applications limit must be greater than or equal to 0")
+    end
+
+    it "returns error if limits are negative" do
+      params = {
+        name: "Negative Limit Plan",
+        price: 100,
+        job_applications_limit: -1
+      }
+
+      post "/api/v1/plans", params: params.to_json, headers: headers
+
+      expect(response).to have_http_status(:unprocessable_content)
+      json = JSON.parse(response.body)
+      expect(json["error"]).to include("Job applications limit must be greater than or equal to 0")
     end
   end
 end

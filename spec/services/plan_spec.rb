@@ -26,12 +26,13 @@ RSpec.describe PlanService, type: :service do
   end
 
   describe "#create_plan" do
-    let(:params) { { name: "Premium", price: 300_000 } }
+    let(:params) { { name: "Premium", price: 300_000, job_applications_limit: 10, interviews_limit: 5, attachments_limit: 20 } }
 
-    it "creates a new plan" do
-      expect {
-        service.create_plan(params)
-      }.to change(Plan, :count).by(1)
+    it "creates a new plan with limits" do
+      created_plan = service.create_plan(params)
+      expect(created_plan.job_applications_limit).to eq(10)
+      expect(created_plan.interviews_limit).to eq(5)
+      expect(created_plan.attachments_limit).to eq(20)
     end
 
     it "raises error if params invalid" do
@@ -42,11 +43,12 @@ RSpec.describe PlanService, type: :service do
   end
 
   describe "#update_plan" do
-    let(:update_params) { { price: 150_000 } }
+    let(:update_params) { { price: 150_000, job_applications_limit: 50 } }
 
-    it "updates the plan" do
+    it "updates the plan with new limits" do
       updated = service.update_plan(plan1.id, update_params)
       expect(updated.price).to eq(150_000)
+      expect(updated.job_applications_limit).to eq(50)
     end
 
     it "raises error if plan not found" do
@@ -57,7 +59,7 @@ RSpec.describe PlanService, type: :service do
 
     it "raises error if params invalid" do
       expect {
-        service.update_plan(plan1.id, { name: nil })
+        service.update_plan(plan1.id, { job_applications_limit: -1 }) # kalau validasi angka >= 0
       }.to raise_error(ActiveRecord::RecordInvalid)
     end
   end

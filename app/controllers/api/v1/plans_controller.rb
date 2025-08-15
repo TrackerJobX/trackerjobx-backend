@@ -19,11 +19,19 @@ class Api::V1::PlansController < Api::V1::BaseController
 
   def create
     plan = service.create_plan(plan_params)
+
+    if plan.persisted?
+      render json: {
+        status: "success",
+        data: PlanBlueprint.render_as_hash(plan)
+      }, status: :created
+    end
+  rescue ActiveRecord::RecordInvalid => e
     render json: {
-      status: "success",
-      data: PlanBlueprint.render_as_hash(plan)
-    }, status: :created
+      error: e.record.errors.full_messages
+    }, status: :unprocessable_content
   end
+
 
   private
 
@@ -32,6 +40,11 @@ class Api::V1::PlansController < Api::V1::BaseController
   end
 
   def plan_params
-    params.permit(:name, :price)
+    params.permit(:name,
+                  :price,
+                  :job_applications_limit,
+                  :interviews_limit,
+                  :attachments_limit
+    )
   end
 end
