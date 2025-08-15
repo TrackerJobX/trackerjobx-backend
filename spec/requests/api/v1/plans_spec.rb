@@ -98,4 +98,32 @@ RSpec.describe "Api::V1::Plans", type: :request do
       expect(json["error"]).to include("Job applications limit must be greater than or equal to 0")
     end
   end
+
+  describe "PUT /api/v1/plans/:id" do
+    context "when params are valid" do
+      it "updates the plan and returns status 200" do
+        put "/api/v1/plans/#{plan1.id}", params: {
+          name: "Ultimate", job_applications_limit: 20, interviews_limit: 5, attachments_limit: 3
+      }.to_json, headers: headers
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["status"]).to eq("success")
+        expect(json["data"]["name"]).to eq("Ultimate")
+        expect(json["data"]["job_applications_limit"]).to eq(20)
+      end
+    end
+
+    context "when params are invalid" do
+      it "returns validation error with status 422" do
+        put "/api/v1/plans/#{plan1.id}", params: {
+        name: ""
+      }.to_json, headers: headers
+
+        expect(response).to have_http_status(:unprocessable_content)
+        json = JSON.parse(response.body)
+        expect(json["error"]).to include("Name can't be blank")
+      end
+    end
+  end
 end

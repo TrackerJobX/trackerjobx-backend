@@ -32,6 +32,18 @@ class Api::V1::PlansController < Api::V1::BaseController
     }, status: :unprocessable_content
   end
 
+  def update
+    plan = service.update_plan(params[:id], plan_params)
+    render json: {
+      status: "success",
+      data: PlanBlueprint.render_as_hash(plan)
+    }, status: :ok
+  rescue ActiveRecord::RecordInvalid => e
+    render json: {
+      error: e.record.errors.full_messages
+    }, status: :unprocessable_content
+  end
+
 
   private
 
