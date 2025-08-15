@@ -1,6 +1,6 @@
 class CreatePlans < ActiveRecord::Migration[8.0]
   def change
-    create_table :plans do |t|
+    create_table :plans, id: :uuid do |t|
       t.string :name
       t.string :description
       t.integer :price

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_15_060057) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_15_074825) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -68,13 +68,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_15_060057) do
     t.index ["user_id"], name: "index_job_applications_on_user_id"
   end
 
-  create_table "plans", force: :cascade do |t|
+  create_table "plans", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.integer "price"
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "job_applications_limit", default: 0
+    t.integer "interviews_limit", default: 0
+    t.integer "attachments_limit", default: 0
     t.index ["deleted_at"], name: "index_plans_on_deleted_at"
   end
 
@@ -87,9 +90,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_15_060057) do
     t.index ["name"], name: "index_tags_on_name", unique: true, where: "(deleted_at IS NULL)"
   end
 
-  create_table "user_plans", force: :cascade do |t|
+  create_table "user_plans", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
-    t.bigint "plan_id", null: false
+    t.uuid "plan_id", null: false
     t.datetime "purchase_at"
     t.datetime "expires_at"
     t.string "status", default: "not_active"
