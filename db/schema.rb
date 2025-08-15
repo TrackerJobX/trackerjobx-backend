@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_13_030236) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_15_060057) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -68,6 +68,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_030236) do
     t.index ["user_id"], name: "index_job_applications_on_user_id"
   end
 
+  create_table "plans", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.integer "price"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_plans_on_deleted_at"
+  end
+
   create_table "tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.datetime "deleted_at"
@@ -75,6 +85,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_030236) do
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_tags_on_deleted_at"
     t.index ["name"], name: "index_tags_on_name", unique: true, where: "(deleted_at IS NULL)"
+  end
+
+  create_table "user_plans", force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.bigint "plan_id", null: false
+    t.datetime "purchase_at"
+    t.datetime "expires_at"
+    t.string "status", default: "not_active"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["deleted_at"], name: "index_user_plans_on_deleted_at"
+    t.index ["plan_id"], name: "index_user_plans_on_plan_id"
+    t.index ["user_id"], name: "index_user_plans_on_user_id"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -103,4 +127,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_030236) do
   add_foreign_key "job_application_tags", "job_applications"
   add_foreign_key "job_application_tags", "tags"
   add_foreign_key "job_applications", "users"
+  add_foreign_key "user_plans", "plans"
+  add_foreign_key "user_plans", "users"
 end

@@ -5,6 +5,9 @@ class User < ApplicationRecord
   has_secure_password
   has_secure_token :email_verification_token
 
+  has_many :user_plans, dependent: :destroy
+  has_many :plans, through: :user_plans
+
   before_validation :generate_username, on: :create
   after_create :send_verification_email
 

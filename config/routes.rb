@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       resources :job_applications
       resources :attachments
       resources :interviews
+      resources :plans
 
       # Auth Routes
       scope :auth do
