@@ -16,8 +16,7 @@ class UserPlanService
       @user.user_plans.create!(
         plan: plan,
         status: "active",
-        purchased_at: Time.current,
-        expires_at: Time.current + plan.duration_days.days
+        purchase_at: Time.current,
       )
     end
   end

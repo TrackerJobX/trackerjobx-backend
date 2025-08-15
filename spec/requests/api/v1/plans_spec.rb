@@ -49,7 +49,7 @@ RSpec.describe "Api::V1::Plans", type: :request do
 
     it "returns error if params invalid" do
       post "/api/v1/plans", params: invalid_params.to_json, headers: headers
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 end

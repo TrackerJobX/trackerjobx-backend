@@ -20,6 +20,7 @@ Rails.application.routes.draw do
       resources :attachments
       resources :interviews
       resources :plans
+      resources :user_plans
 
       # Auth Routes
       scope :auth do
