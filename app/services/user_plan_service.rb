@@ -5,6 +5,14 @@ class UserPlanService
     @user = user
   end
 
+  def find_all_user_plans
+    if @user.role == "admin"
+      UserPlan.all
+    else
+      @user.user_plans
+    end
+  end
+
   def purchase_plan(plan_id)
     plan = Plan.find(plan_id)
 

@@ -5,6 +5,22 @@ RSpec.describe UserPlanService, type: :service do
   let(:plan) { create(:plan, price: 100) }
   let(:service) { described_class.new(user) }
 
+  describe "#find_all_user_plans" do
+    it "returns all user plans if user is admin" do
+      admin = create(:user, role: "admin")
+      create_list(:user_plan, 3, user: admin)
+      service = UserPlanService.new(admin)
+      expect(service.find_all_user_plans.count).to eq(3)
+    end
+
+    it "returns only user plans if user is member" do
+      member = create(:user, role: "member")
+      create_list(:user_plan, 3, user: member)
+      service = UserPlanService.new(member)
+      expect(service.find_all_user_plans.count).to eq(3)
+    end
+  end
+
   describe "#purchase_plan" do
     context "when user has no active plan" do
       it "creates a new active user plan" do
