@@ -2,7 +2,7 @@ class Api::V1::UserPlansController < Api::V1::BaseController
   def index
     render json: {
       status: "success",
-      data: UserPlanBlueprint.render_as_hash(current_user.user_plans)
+      data: UserPlanBlueprint.render_as_hash(service.find_all_user_plans)
     }
   end
 
