@@ -19,11 +19,18 @@ RSpec.describe "Api::V1::UserPlans", type: :request do
   end
 
   describe "POST /api/v1/user_plans" do
-    context "when plan exists" do
-      it "purchases a new plan" do
+    let!(:plan) { create(:plan) } # ini penting, bikin plan dulu sebelum dipakai
+
+    context "when user is admin" do
+      let!(:admin) { create(:user, role: "admin") }
+      let!(:headers) { auth_headers(admin) }
+      let!(:member) { create(:user, role: "member") }
+
+      it "creates a new active plan with admin" do
         post "/api/v1/user_plans",
-             params: { plan_id: plan.id }.to_json,
-             headers: headers
+            params: { plan_id: plan.id, user_id: member.id, status: "active" },
+            headers: headers,
+            as: :json
 
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
@@ -31,31 +38,16 @@ RSpec.describe "Api::V1::UserPlans", type: :request do
       end
     end
 
-    context "when plan does not exist" do
-      it "returns 404 not found" do
+    context "when plan not found" do
+      it "returns not found" do
         post "/api/v1/user_plans",
-             params: { plan_id: 9999 }.to_json,
-             headers: headers
+            params: { plan_id: 0, user_id: user.id, status: "active" },
+            headers: headers,
+            as: :json
 
         expect(response).to have_http_status(:not_found)
         json = JSON.parse(response.body)
         expect(json["error"]).to eq("Plan not found")
-      end
-    end
-
-    context "when an unexpected error occurs" do
-      before do
-        allow_any_instance_of(UserPlanService).to receive(:purchase_plan).and_raise(StandardError, "Something went wrong")
-      end
-
-      it "returns 422 unprocessable entity" do
-        post "/api/v1/user_plans",
-             params: { plan_id: plan.id }.to_json,
-             headers: headers
-
-        expect(response).to have_http_status(:unprocessable_content)
-        json = JSON.parse(response.body)
-        expect(json["error"]).to eq("Something went wrong")
       end
     end
   end

@@ -7,13 +7,11 @@ class Api::V1::UserPlansController < Api::V1::BaseController
   end
 
   def create
-    service.purchase_plan(params[:plan_id])
+    service.purchase_plan(user_plan_params)
 
     render json: { message: "Plan purchased successfully" }, status: :created
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Plan not found" }, status: :not_found
-  rescue StandardError => e
-    render json: { error: e.message }, status: :unprocessable_content
   end
 
   private
@@ -21,5 +19,9 @@ class Api::V1::UserPlansController < Api::V1::BaseController
 
   def service
     @service ||= UserPlanService.new(current_user)
+  end
+
+  def user_plan_params
+    params.permit(:plan_id, :user_id, :status, :purchase_at)
   end
 end

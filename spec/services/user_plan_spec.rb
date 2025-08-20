@@ -22,10 +22,14 @@ RSpec.describe UserPlanService, type: :service do
   end
 
   describe "#purchase_plan" do
+    let(:plan) { create(:plan, price: 100) }
+    let(:user) { create(:user) }
+    let(:service) { described_class.new(user) }
+
     context "when user has no active plan" do
       it "creates a new active user plan" do
         expect {
-          service.purchase_plan(plan.id)
+          service.purchase_plan(plan_id: plan.id, user_id: user.id)
         }.to change(UserPlan, :count).by(1)
 
         user_plan = user.user_plans.last
@@ -40,7 +44,7 @@ RSpec.describe UserPlanService, type: :service do
       let!(:active_user_plan) { create(:user_plan, user: user, plan: old_plan, status: "active") }
 
       it "expires the old plan and creates a new active plan" do
-        service.purchase_plan(plan.id)
+        service.purchase_plan(plan_id: plan.id, user_id: user.id)
 
         expect(active_user_plan.reload.status).to eq("expired")
 
@@ -50,10 +54,42 @@ RSpec.describe UserPlanService, type: :service do
       end
     end
 
+    context "when create user plan where role is admin" do
+      let(:admin) { create(:user, role: "admin") }
+      let(:service) { described_class.new(admin) }
+
+      it "creates a new active plan without expiring the old one" do
+        old_plan = create(:user_plan, user: admin, status: "active")
+
+        expect {
+          service.purchase_plan(plan_id: plan.id, user_id: admin.id, status: "active", purchase_at: Time.current)
+        }.to change(UserPlan, :count).by(1)
+
+        expect(old_plan.reload.status).to eq("active") # tetap active
+        expect(admin.user_plans.active.count).to eq(2) # jadi ada 2 aktif
+      end
+    end
+
+    context "when create user plan where role is member" do
+      let(:member) { create(:user, role: "member") }
+      let(:service) { described_class.new(member) }
+
+      it "expires old plan and creates 1 new active plan" do
+        old_plan = create(:user_plan, user: member, status: "active")
+
+        expect {
+          service.purchase_plan(plan_id: plan.id, user_id: member.id)
+        }.to change(UserPlan, :count).by(1)
+
+        expect(old_plan.reload.status).to eq("expired")
+        expect(member.user_plans.active.count).to eq(1)
+      end
+    end
+
     context "when plan does not exist" do
       it "raises ActiveRecord::RecordNotFound" do
         expect {
-          service.purchase_plan(9999)
+          service.purchase_plan(plan_id: 9999, user_id: user.id)
         }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
