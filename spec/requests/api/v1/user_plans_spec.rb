@@ -51,4 +51,43 @@ RSpec.describe "Api::V1::UserPlans", type: :request do
       end
     end
   end
+
+  describe "PUT /api/v1/user_plans/:id" do
+    context "when update user plan correctly" do
+      let!(:user_plan) { create(:user_plan, user: user, plan: plan, status: "active") }
+
+      it "updates the user plan" do
+        put "/api/v1/user_plans/#{user_plan.id}",
+            params: {
+              plan_id: plan.id,
+              status: "expired"
+            },
+            headers: headers,
+            as: :json
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["message"]).to eq("Plan updated successfully")
+
+        # verifikasi ke DB
+        expect(user_plan.reload.status).to eq("expired")
+      end
+    end
+
+    context "when user plan not found" do
+      it "returns not found error" do
+        put "/api/v1/user_plans/99999",
+            params: {
+              plan_id: plan.id,
+              status: "expired"
+            },
+            headers: headers,
+            as: :json
+
+        expect(response).to have_http_status(:not_found)
+        json = JSON.parse(response.body)
+        expect(json["error"]).to eq("Plan not found")
+      end
+    end
+  end
 end

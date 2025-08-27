@@ -94,4 +94,40 @@ RSpec.describe UserPlanService, type: :service do
       end
     end
   end
+
+  describe "#update_user_plan" do
+    let(:plan)  { create(:plan, price: 100) }
+    let(:user)  { create(:user) }
+    let(:service) { described_class.new(user) }
+
+    context "when successfully updated user plan" do
+      let!(:user_plan) { create(:user_plan, user: user, plan: plan, status: "active") }
+
+      it "updates the user plan" do
+        result = service.update_user_plan(user_plan.id, { plan_id: plan.id, status: "expired" })
+
+        expect(result).to eq(user_plan)
+        expect(result.errors).to be_empty
+        expect(user_plan.reload.status).to eq("expired")
+      end
+    end
+
+    context "when user plan does not exist" do
+      it "raises ActiveRecord::RecordNotFound" do
+        expect {
+          service.update_user_plan(99999, { plan_id: plan.id, status: "active" })
+        }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context "when params invalid" do
+      let!(:user_plan) { create(:user_plan, user: user, plan: plan, status: "active") }
+
+      it "raises ActiveRecord::RecordInvalid" do
+        expect {
+          service.update_user_plan(user_plan.id, { status: "XXXX" })
+        }.to raise_error(ArgumentError, /is not a valid status/)
+      end
+    end
+  end
 end

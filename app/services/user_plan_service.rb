@@ -27,4 +27,11 @@ class UserPlanService
       end
     end
   end
+
+
+  def update_user_plan(id, user_plan_params)
+    user_plan = UserPlan.find(id)
+    user_plan.update!(user_plan_params)
+    user_plan
+  end
 end

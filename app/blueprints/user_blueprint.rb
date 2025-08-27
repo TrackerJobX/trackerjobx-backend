@@ -8,7 +8,4 @@ class UserBlueprint < Blueprinter::Base
   field :plan_name do |user, _options|
     user.user_plans.last&.plan&.name
   end
-
-
-  association :user_plans, blueprint: UserPlanBlueprint
 end

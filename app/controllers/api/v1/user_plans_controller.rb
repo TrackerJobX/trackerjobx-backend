@@ -14,6 +14,14 @@ class Api::V1::UserPlansController < Api::V1::BaseController
     render json: { error: "Plan not found" }, status: :not_found
   end
 
+  def update
+    service.update_user_plan(params[:id], user_plan_params)
+
+    render json: { message: "Plan updated successfully" }, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Plan not found" }, status: :not_found
+  end
+
   private
 
 
